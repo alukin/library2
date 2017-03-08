@@ -68,7 +68,7 @@ public class UserControllerTest {
         UserListReply ur = om.readValue(reply, UserListReply.class);
         assertEquals("Reurn code in not 0",ur.retcode.longValue(), 0L);
         if(ur.retcode==0){
-            mockMvc.perform(delete("/users/del/"+ur.users.get(0).user_id)
+            mockMvc.perform(get("/users/del/"+ur.users.get(0).user_id)
                                   .accept(MediaType.APPLICATION_JSON_UTF8)
                            )
                     .andExpect(status().isOk());

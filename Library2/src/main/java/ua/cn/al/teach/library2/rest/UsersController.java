@@ -60,9 +60,24 @@ private static final Logger logger =  LoggerFactory.getLogger(UsersController.cl
             logger.error("Error adding user. Expetion: "+e.getMessage(),e);
         }
         return rep;
-    } 
-    
-    @RequestMapping(path="/users/del/{userid}",  method=RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    }
+
+    @RequestMapping(path="/users/update",  method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public UserListReply updateUser( @RequestBody AddUserRequest req){
+        UserListReply rep = new UserListReply();
+        try{
+            Appuser au;
+            au = userService.updateUser(userMapper.toInternal(req.user));
+            rep.users.add(userMapper.fromInternal(au));
+        }catch(Exception e){
+            rep.retcode = -1;
+            rep.error_message = e.getMessage();
+            logger.error("Error adding user. Expetion: "+e.getMessage(),e);
+        }
+        return rep;
+    }
+
+    @RequestMapping(path="/users/del/{userid}",  method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public GenericReply delUser(@PathVariable Long userid ){
             GenericReply rep = new GenericReply();
         try{

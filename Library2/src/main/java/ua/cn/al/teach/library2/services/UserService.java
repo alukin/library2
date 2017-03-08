@@ -58,8 +58,14 @@ UserdetailsRepository detailsRepository;
         if(u!=null){
         logger.debug("Deleting users %s with id %s", u.getUsername(), u.getUserId());
            List<Ugroup> gl = u.getUgroupList();
+           gl.clear();
            detailsRepository.delete(id);
            userRepository.delete(id);
         }
+    }
+
+    public Appuser updateUser(Appuser appuser) {
+        appuser = userRepository.save(appuser);
+        return appuser;
     }
 }
