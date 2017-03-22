@@ -5,6 +5,7 @@
 package ua.cn.al.teach.library2.auth;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

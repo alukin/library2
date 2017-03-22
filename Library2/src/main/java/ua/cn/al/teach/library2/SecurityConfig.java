@@ -19,27 +19,26 @@ import ua.cn.al.teach.library2.auth.TokenSecurityFilter;
  * @author al
  */
 @Configuration
-
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private NotAuthenticatedEntryPoint unauthorizedHandler;
-    
+    private NotAuthenticatedEntryPoint unauthorizedHandler;    
     @Bean
     public TokenSecurityFilter authenticationTokenFilterBean() throws Exception {
         return new TokenSecurityFilter();
     }
-
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
                 // don't create session
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated();
-        httpSecurity
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(authenticationTokenFilterBean(), 
+                 UsernamePasswordAuthenticationFilter.class);
         httpSecurity.headers().cacheControl();
     }
 }

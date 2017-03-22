@@ -25,6 +25,10 @@ public class AuthUser implements UserDetails{
         return authorities;
     }
     
+    public Appuser getAppUser(){
+        return user;
+    }
+    
     public AuthUser(Appuser user){
         this.user = user;
         List<Ugroup> groups = user.getUgroupList();
