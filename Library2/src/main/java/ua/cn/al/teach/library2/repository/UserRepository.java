@@ -16,4 +16,6 @@ import ua.cn.al.teach.library2.jpa.Appuser;
 public interface UserRepository extends CrudRepository<Appuser, Long> {
     @Override
     public List<Appuser> findAll();
+
+    public Appuser findByUsername(String username);
 }

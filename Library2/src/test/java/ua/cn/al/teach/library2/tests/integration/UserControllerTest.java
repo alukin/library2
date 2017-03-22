@@ -4,9 +4,10 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.hamcrest.CoreMatchers.containsString;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import ua.cn.al.teach.library.api.AddUserRequest;
 import ua.cn.al.teach.library.api.LibUser;
+import ua.cn.al.teach.library.api.LoginReply;
+import ua.cn.al.teach.library.api.LoginRequest;
 import ua.cn.al.teach.library.api.UserListReply;
 
 /**
@@ -33,47 +36,76 @@ import ua.cn.al.teach.library.api.UserListReply;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class UserControllerTest {
+    public final static String AUTH_HTTP_HEADER ="X-Authorization";
+    private static String token = null;
     @Autowired
     private MockMvc mockMvc;
-        
+    
+    @Before
+    public void login() throws Exception {
+        if(token!=null){
+            return;
+        }
+        LoginRequest rq = new LoginRequest();
+        rq.login = "librarian1";
+        rq.password = "qwerty";
+        ObjectMapper om = new ObjectMapper();
+        String content = om.writeValueAsString(rq);
+        MvcResult result = mockMvc.perform(post("/auth")
+                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(content)
+        )
+                .andExpect(status().isOk())
+                .andReturn();
+        String reply = result.getResponse().getContentAsString();
+        LoginReply lr = om.readValue(reply, LoginReply.class);
+        token = lr.token;
+    }
+
+
+
     @Test
     public void findUserTest() throws Exception {
-        this.mockMvc.perform(get("/users/byid/1"))
+        this.mockMvc.perform(get("/users/byid/1")
+                               .header(AUTH_HTTP_HEADER, token)
+                 )
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString("librarian1")));
     }
-    
+
     @Test
-    public void addUserTest() throws Exception{
+    public void addUserTest() throws Exception {
         AddUserRequest rq = new AddUserRequest();
         rq.user = new LibUser();
         rq.user.firstName = "Test1First";
         rq.user.isLibrarian = true;
-        rq.user.lastName ="Test1Last";
-        rq.user.login ="test_user_1";
-        rq.user.email ="test@test.com";
-        
+        rq.user.lastName = "Test1Last";
+        rq.user.login = "test_user_1";
+        rq.user.email = "test@test.com";
+
         ObjectMapper om = new ObjectMapper();
         String content = om.writeValueAsString(rq);
 
         MvcResult result = mockMvc.perform(post("/users/add")
-                 .accept(MediaType.APPLICATION_JSON_UTF8)
-                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                 .content(content)
-         )
-           .andExpect(status().isOk())
-         .andReturn();
-         
+                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTH_HTTP_HEADER, token)
+                .content(content)
+        )
+                .andExpect(status().isOk())
+                .andReturn();
+
         String reply = result.getResponse().getContentAsString();
         UserListReply ur = om.readValue(reply, UserListReply.class);
-        assertEquals("Reurn code in not 0",ur.retcode.longValue(), 0L);
-        if(ur.retcode==0){
-            mockMvc.perform(get("/users/del/"+ur.users.get(0).user_id)
-                                  .accept(MediaType.APPLICATION_JSON_UTF8)
-                           )
+        assertEquals("Reurn code in not 0", ur.retcode.longValue(), 0L);
+        if (ur.retcode == 0) {
+            mockMvc.perform(get("/users/del/" + ur.users.get(0).user_id)
+                    .accept(MediaType.APPLICATION_JSON_UTF8)
+                    .header(AUTH_HTTP_HEADER, token)
+            )
                     .andExpect(status().isOk());
-                    
-            
+
         }
     }
 }
