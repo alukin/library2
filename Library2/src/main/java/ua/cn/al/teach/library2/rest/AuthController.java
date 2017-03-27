@@ -19,6 +19,7 @@ import ua.cn.al.teach.library2.auth.TokenProvider;
 import ua.cn.al.teach.library2.jpa.Appuser;
 import ua.cn.al.teach.library2.services.UserMapper;
 import ua.cn.al.teach.library2.services.UserService;
+import org.springframework.mobile.device.Device;
 
 /**
  *
@@ -35,12 +36,12 @@ private static final Logger logger =  LoggerFactory.getLogger(AuthController.cla
     TokenProvider tokenProvider;
 
     @RequestMapping(path="/auth",  method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public LoginReply authUser( @RequestBody LoginRequest req){
+    public LoginReply authUser( @RequestBody LoginRequest req, Device device){
         LoginReply rep = new LoginReply();
            Appuser au;
            au = userService.authUser(req.login,req.password);
            if(au!=null){
-              String token = tokenProvider.newToken();
+              String token = tokenProvider.newToken(au,device);
               tokenProvider.put(token, new AuthUser(au));
               rep.user = userMapper.fromInternal(au);
               rep.token = token;

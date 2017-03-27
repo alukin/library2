@@ -7,6 +7,7 @@ package ua.cn.al.teach.library2.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -175,6 +176,11 @@ public class Appuser implements Serializable {
     @Override
     public String toString() {
         return "ua.cn.al.teach.library2.jpa.Appuser[ userId=" + userId + " ]";
+    }
+//TODO: implement
+    public Date getLastPasswordResetDate() {
+        GregorianCalendar c = new GregorianCalendar(1970, 1, 1);
+        return c.getTime();
     }
     
 }

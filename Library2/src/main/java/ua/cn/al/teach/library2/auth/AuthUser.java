@@ -6,6 +6,7 @@ package ua.cn.al.teach.library2.auth;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,4 +74,7 @@ public class AuthUser implements UserDetails{
         return true;
     }
     
+    public Date getLastPasswordResetDate(){
+        return user.getLastPasswordResetDate();
+    }
 }
