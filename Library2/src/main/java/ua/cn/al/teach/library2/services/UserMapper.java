@@ -42,7 +42,7 @@ private static final Logger logger =  LoggerFactory.getLogger(UserMapper.class);
             Userdetails ud = u.getUserdetails();
             lu.isLibrarian = u.getUserId() < 100;
             lu.login = u.getUsername();
-            lu.user_id = u.getUserId();
+            lu.user_id = u.getUserId().toString();
             if (ud != null) {
                 lu.firstName = u.getUserdetails().getFirstName();
                 lu.lastName = u.getUserdetails().getLastName();
@@ -86,7 +86,7 @@ private static final Logger logger =  LoggerFactory.getLogger(UserMapper.class);
         Appuser au = null;
         //first, check if it exists
         if (lu.user_id != null) {
-            au = userRepository.findOne(lu.user_id);
+            au = userRepository.findOne(Long.parseLong(lu.user_id));
         }
         if (au == null) { //not found, create new
             logger.debug("Creating new user");
