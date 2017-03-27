@@ -11,6 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
 import ua.cn.al.teach.library2.jpa.Appuser;
@@ -51,12 +52,14 @@ public class UserService {
         return res;
     }
 
+    @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
     public Appuser addUser(Appuser au) {
         logger.debug("Adding users %s with id %s", au.getUsername(), au.getUserId());
         au = userRepository.save(au);
         return au;
     }
 
+    @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
     public void delUser(Long id) {
         Appuser u = userRepository.findOne(id);
         if (u != null) {
@@ -68,11 +71,12 @@ public class UserService {
         }
     }
 
+    @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
     public Appuser updateUser(Appuser appuser) {
         appuser = userRepository.save(appuser);
         return appuser;
     }
-
+    
     public Appuser authUser(String login, String password) {
         Appuser appuser = userRepository.findByUsername(login);
         if (appuser != null) {
