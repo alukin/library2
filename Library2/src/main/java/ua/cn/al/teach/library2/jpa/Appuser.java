@@ -13,6 +13,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -69,9 +70,9 @@ public class Appuser implements Serializable {
     @JoinTable(name = "user_group", joinColumns = {
         @JoinColumn(name = "user_id", referencedColumnName = "user_id")}, inverseJoinColumns = {
         @JoinColumn(name = "group_id", referencedColumnName = "group_id")})
-    @ManyToMany(cascade = CascadeType.DETACH)
+    @ManyToMany(cascade = CascadeType.DETACH , fetch = FetchType.EAGER)
     private List<Ugroup> ugroupList = new ArrayList<>();
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "appuser")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "appuser", fetch = FetchType.EAGER)
     private Userdetails userdetails;
 
     public Appuser() {

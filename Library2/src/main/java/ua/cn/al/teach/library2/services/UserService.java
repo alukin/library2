@@ -64,7 +64,7 @@ public class UserService {
         return au;
     }
 
-    @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
+    @Secured({"ROLE_LIBRARIAN","ROLE_ADMIN"})
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delUser(Long id) {
         Appuser u = userRepository.findOne(id);
