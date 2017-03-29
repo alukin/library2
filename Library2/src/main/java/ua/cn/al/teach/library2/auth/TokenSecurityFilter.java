@@ -32,11 +32,13 @@ public class TokenSecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //DEBUG: print all HTTP headers
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            logger.info("Name: " + headerName+" Value: "+request.getHeader(headerName));
+            logger.info("Name: " + headerName + " Value: " + request.getHeader(headerName));
         }
+
         String authToken = request.getHeader(AUTH_HTTP_HEADER);
         if (authToken == null) {
             authToken = request.getHeader(AUTH_HTTP_HEADER.toLowerCase());
@@ -44,12 +46,14 @@ public class TokenSecurityFilter extends OncePerRequestFilter {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             AuthUser u = tokenPtovider.get(authToken);
             if (u != null) {
-                logger.debug("Token found, it belongs to: " + u.getUsername());
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(u, null, u.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                logger.info("authenticated user " + u.getUsername() + ", setting security context");
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
+                boolean isTokenValid = tokenPtovider.validateToken(authToken, u);
+                if (isTokenValid) {
+                    logger.debug("Token found, it belongs to: " + u.getUsername());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(u, null, u.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    logger.info("authenticated user " + u.getUsername() + ", setting security context");
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             } else {
                 logger.info("authentication failed, may be token is expired");
             }

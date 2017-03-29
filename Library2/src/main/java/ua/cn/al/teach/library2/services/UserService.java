@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ua.cn.al.teach.library2.jpa.Appuser;
 import ua.cn.al.teach.library2.jpa.Ugroup;
 import ua.cn.al.teach.library2.jpa.Userdetails;
@@ -25,6 +27,7 @@ import ua.cn.al.teach.library2.repository.UserdetailsRepository;
  * @author al
  */
 @Service
+@Transactional
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -60,6 +63,7 @@ public class UserService {
     }
 
     @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delUser(Long id) {
         Appuser u = userRepository.findOne(id);
         if (u != null) {
@@ -72,6 +76,7 @@ public class UserService {
     }
 
     @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Appuser updateUser(Appuser appuser) {
         appuser = userRepository.save(appuser);
         return appuser;
