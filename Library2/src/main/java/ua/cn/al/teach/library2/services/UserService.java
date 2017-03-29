@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ua.cn.al.teach.library2.jpa.Appuser;
@@ -27,7 +28,7 @@ import ua.cn.al.teach.library2.repository.UserdetailsRepository;
  * @author al
  */
 @Service
-@Transactional
+@Transactional(timeout = 10)
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -45,7 +46,7 @@ public class UserService {
         Appuser u = userRepository.findOne(id);
         return u;
     }
-
+@Transactional(readOnly = true)
     public List<Appuser> findUserByName(String firstName, String lastName) {
         List<Userdetails> udl = detailsRepository.findByFirstNameAndLastName(firstName, lastName);
         List<Appuser> res = new ArrayList<>();
@@ -56,6 +57,7 @@ public class UserService {
     }
 
     @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
+    @Transactional(propagation = Propagation.REQUIRES_NEW)    
     public Appuser addUser(Appuser au) {
         logger.debug("Adding users %s with id %s", au.getUsername(), au.getUserId());
         au = userRepository.save(au);
@@ -76,13 +78,14 @@ public class UserService {
     }
 
     @Secured({"ROLE_LIBRARIAN","ROLE_DMIN"})
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Appuser updateUser(Appuser appuser) {
         appuser = userRepository.save(appuser);
         return appuser;
     }
     
-    public Appuser authUser(String login, String password) {
+  @Transactional(readOnly = true)
+  public Appuser authUser(String login, String password) {
         Appuser appuser = userRepository.findByUsername(login);
         if (appuser != null) {
             if( ! appuser.getPasswdHash().equalsIgnoreCase(digest(password))){
